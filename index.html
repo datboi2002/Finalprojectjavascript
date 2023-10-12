@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo App</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+      </div>
+    
+    <h1>Todo List</h1>
+        <ul id="todo-list"></ul>
+        <input type="text" id="new-todo-title" placeholder="Enter a new todo title">
+        <button class="btn-two" id="submit-button">Submit</button>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const todoList = document.getElementById("todo-list");
+            const newTodoTitleInput = document.getElementById("new-todo-title");
+            const submitButton = document.getElementById("submit-button");
+
+            
+            function fetchAndDisplayTodos() {
+                fetch("https://futuristic-balsam-situation.glitch.me/api/todos")
+                    .then(response => response.json())
+                    .then(data => {
+                        todoList.innerHTML = "";
+
+                        data.forEach(todo => {
+                            const listItem = document.createElement("li");
+                            listItem.textContent = `Title: ${todo.title}, Done: ${todo.isDone}`;
+                            listItem.addEventListener("mouseenter", function () {
+                              
+                                const completeButton = document.createElement("button");
+                                completeButton.textContent = "Complete Todo";
+                                completeButton.addEventListener("click", () => completeTodo(todo.id));
+                                
+                                
+                                const deleteButton = document.createElement("button");
+                                deleteButton.textContent = "Delete";
+                                deleteButton.addEventListener("click", () => deleteTodo(todo.id));
+                                
+                                listItem.appendChild(completeButton);
+                                listItem.appendChild(deleteButton);
+                            });
+
+                            listItem.addEventListener("mouseleave", function () {
+                                
+                                const completeButton = listItem.querySelector("button");
+                                const deleteButton = listItem.querySelectorAll("button")[1];
+                                if (completeButton) {
+                                    listItem.removeChild(completeButton);
+                                }
+                                if (deleteButton) {
+                                    listItem.removeChild(deleteButton);
+                                }
+                            });
+
+                            todoList.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => console.error("Error fetching todos:", error));
+            }
+
+            fetchAndDisplayTodos();
+
+            function addNewTodo() {
+                const newTodoTitle = newTodoTitleInput.value;
+
+                if (newTodoTitle.trim() === "") {
+                    alert("Please enter a valid todo title.");
+                    return;
+                }
+
+                
+                const requestBody = JSON.stringify({ title: newTodoTitle });
+
+                fetch("https://futuristic-balsam-situation.glitch.me/api/todos", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: requestBody,
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        newTodoTitleInput.value = "";
+                        fetchAndDisplayTodos();
+                    })
+                    .catch(error => console.error("Error adding todo:", error));
+            }
+
+            function completeTodo(id) {
+                fetch(`https://futuristic-balsam-situation.glitch.me/api/todos/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ isDone: true }),
+                })
+                    .then(response => response.json())
+                    .then(() => {
+                        fetchAndDisplayTodos();
+                    })
+                    .catch(error => console.error("Error completing todo:", error));
+            }
+
+            function deleteTodo(id) {
+                fetch(`https://futuristic-balsam-situation.glitch.me/api/todos/${id}`, {
+                    method: "DELETE",
+                })
+                    .then(() => {
+                        fetchAndDisplayTodos();
+                    })
+                    .catch(error => console.error("Error deleting todo:", error));
+            }
+
+            submitButton.addEventListener("click", addNewTodo);
+        });
+    </script>
+
+
+
+</body>
+</html>
